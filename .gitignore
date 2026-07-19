@@ -1,0 +1,35 @@
+# Dependencias de Node
+node_modules/
+jspm_packages/
+
+# Archivos de logs (depuración de errores)
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Caché de herramientas de desarrollo
+.npm
+.eslintcache
+.stylelintcache
+.turbo
+.pnpm-store
+
+# Entornos locales y credenciales (Seguridad LOPDP)
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Salidas de compilación (Directorios de producción)
+dist/
+build/
+
+# Archivos específicos del Sistema Operativo o editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
