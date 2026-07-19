@@ -1,4 +1,14 @@
-// Entidad Broker
+// src/types/index.ts
+
+// Tipos de navegación interna e identificadores de la API
+export type TabId = 'overview' | 'classifier' | 'vault' | 'docs' | 'settings';
+export type EndpointId = 'classify' | 'result' | 'validate' | 'operations' | 'vault_id';
+
+export interface ApiDocContent {
+    curl: string;
+    response: string;
+}
+
 // Entidad Broker
 export interface Broker {
     id: number;
