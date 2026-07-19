@@ -1,7 +1,13 @@
 // src/types/index.ts
 
-// Tipos de navegación interna e identificadores de la API
-export type TabId = 'overview' | 'classifier' | 'vault' | 'docs' | 'settings';
+// Identificadores de navegación interna para todas las pantallas del prototipo
+export type TabId = 
+    | 'inicio' | 'nosotros' | 'planes' | 'contacto' | 'login' // Módulo Público
+    | 'overview' | 'classifier' | 'historial' | 'reportes'    // Módulo Core / Dashboard
+    | 'vault' | 'docs' | 'settings'                         // Integración & Seguridad (Faltaban aquí)
+    | 'usuarios' | 'roles' | 'normativas' | 'config_ia';    // Módulo de Administración
+
+// Identificadores para la consola interactiva de la documentación técnica
 export type EndpointId = 'classify' | 'result' | 'validate' | 'operations' | 'vault_id';
 
 export interface ApiDocContent {
@@ -9,7 +15,7 @@ export interface ApiDocContent {
     response: string;
 }
 
-// Entidad Broker
+// Entidad Broker / Operador Autorizado
 export interface Broker {
     id: number;
     usuario: string;
@@ -22,7 +28,7 @@ export interface Broker {
 export type SenaeStatus = 'Validado' | 'Physical Inspection Pending' | 'Under Review';
 export type LopdpCompliance = 'Encrypted Secure' | 'Consent Ok' | 'Pending Review';
 
-// Entidad Operación Aduanera
+// Entidad Operación Aduanera (Base de Datos Relacional Mockup)
 export interface CustomsOperation {
     operation_id: string;
     source_document: string;
@@ -31,6 +37,6 @@ export interface CustomsOperation {
     date: string; 
     broker_id: number;
     assigned_broker: string; 
-    senae_status: SenaeStatus;
-    lopdp_compliance: LopdpCompliance;
+    senae_status: string;
+    lopdp_compliance: string;
 }

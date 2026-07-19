@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { CustomsOperation } from '../../../types';
 
 interface TariffClassifierProps {
@@ -8,86 +8,127 @@ interface TariffClassifierProps {
 }
 
 export function TariffClassifier({ handleUpload, isClassifying, lastResult }: TariffClassifierProps) {
-    
-    const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files?.[0]) {
-            handleUpload(e.target.files[0]);
-        }
+    const [invoiceUploaded, setInvoiceUploaded] = useState<boolean>(false);
+    const [packingListUploaded, setPackingListUploaded] = useState<boolean>(false);
+    const [mockResultVisible, setMockResultVisible] = useState<boolean>(false);
+    const [simulating, setSimulating] = useState<boolean>(false);
+
+    // Simulación interna del proceso de inferencia IA para el prototipo
+    const handleStartAnalysis = () => {
+        setSimulating(true);
+        setTimeout(() => {
+            setSimulating(false);
+            setMockResultVisible(true);
+        }, 1200);
     };
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             
-            {/* Zona de Ingesta de Documentos (Izquierda) */}
-            <div className="bg-white p-6 rounded-xl border border-[#E2E8F0] shadow-sm flex flex-col justify-between space-y-4">
-                <div>
-                    <h3 className="text-sm font-bold text-slate-900 mb-3">Document Ingestion</h3>
-                    <div className="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center bg-slate-50/50">
-                        <input 
-                            type="file" 
-                            id="classifier-file"
-                            className="hidden"
-                            onChange={onFileChange}
-                            disabled={isClassifying}
-                        />
-                        <label htmlFor="classifier-file" className={`block space-y-2 ${isClassifying ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}`}>
-                            <div className="text-2xl">{isClassifying ? '🔄' : '📤'}</div>
-                            <p className="text-sm font-medium text-slate-700">
-                                {isClassifying ? 'Procesando analítica OCR...' : 'Drag & Drop your document here'}
-                            </p>
-                            <p className="text-xs text-slate-400">Supports PDF, XML and XLSX invoices</p>
-                        </label>
-                    </div>
-                </div>
-                
-                {lastResult && (
-                    <p className="text-xs text-emerald-600 bg-emerald-50 p-2 rounded border border-emerald-100 font-mono">
-                        ✓ Último archivo cargado con éxito: {lastResult.source_document}
-                    </p>
-                )}
-
-                <label 
-                    htmlFor="classifier-file"
-                    className={`w-full text-center py-2.5 bg-[#00529F] hover:bg-blue-800 text-white font-medium rounded-lg text-sm transition-all block ${isClassifying ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
-                >
-                    {isClassifying ? 'Analyzing Core Logic...' : '⚡ Process Document'}
-                </label>
-            </div>
-
-            {/* Resultados en Tiempo Real del Motor de Inteligencia Artificial (Derecha) */}
-            <div className="bg-white p-6 rounded-xl border border-[#E2E8F0] shadow-sm space-y-4">
-                <div className="flex justify-between items-center">
-                    <h3 className="text-sm font-bold text-slate-900">Live API Classification Results</h3>
-                    {isClassifying && <span className="text-xs text-blue-600 font-medium animate-pulse">Consultando SENAE...</span>}
-                </div>
-                
-                <div className="space-y-4">
-                    <div>
-                        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Extracted Item Description</p>
-                        <p className="text-sm font-mono bg-slate-50 p-3 rounded-lg mt-1 text-slate-700 border">
-                            {isClassifying ? 'Extrayendo texto...' : lastResult ? `Análisis de: ${lastResult.source_document}` : 'Mixed distribution electronic components'}
-                        </p>
-                    </div>
+            {/* ZONA IZQUIERDA: INGESTA ESTRUCTURADA (FACTURA Y PACKING LIST) */}
+            <div className="bg-white p-6 rounded-xl border border-[#E2E8F0] shadow-sm flex flex-col justify-between space-y-5 h-[340px]">
+                <div className="space-y-3">
+                    <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Clasificación</h3>
                     
-                    <div>
-                        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Assigned HS Subheading</p>
-                        <div className="text-xl font-bold text-[#00529F] bg-blue-50 p-4 rounded-lg border border-blue-100 mt-1 flex justify-between items-center">
-                            <span className="font-mono">{isClassifying ? '••••.••.••.••' : lastResult ? lastResult.assigned_subheading : '8537.10.00.00'}</span>
-                            <span className={`text-xs px-2.5 py-1 rounded-full text-white font-semibold ${isClassifying ? 'bg-slate-400' : 'bg-emerald-500'}`}>
-                                {isClassifying ? 'Calculando...' : '99.4% Match'}
-                            </span>
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Selector 1: Factura */}
+                        <div 
+                            onClick={() => !simulating && setInvoiceUploaded(true)}
+                            className={`border-2 border-dashed rounded-xl p-4 text-center transition-all ${
+                                invoiceUploaded 
+                                    ? 'border-emerald-500 bg-emerald-50/40 text-emerald-700' 
+                                    : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/50 text-slate-500 cursor-pointer'
+                            }`}
+                        >
+                            <span className="text-xl block mb-1">📄</span>
+                            <span className="text-xs font-bold block">Subir Factura</span>
+                            {invoiceUploaded && <span className="text-[10px] font-semibold mt-1 block text-emerald-600">✓ Cargado</span>}
                         </div>
-                    </div>
 
-                    <div>
-                        <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Automated Explanatory Notes</p>
-                        <div className="text-xs text-slate-600 space-y-1.5 bg-slate-50/50 p-3 rounded-lg border mt-1">
-                            <p>• Clasificación automatizada bajo Reglas Generales de Interpretación 1 y 6 del SA.</p>
-                            <p>• Sujeto a control posterior e inspección física automatizada según perfil de riesgo.</p>
+                        {/* Selector 2: Packing List */}
+                        <div 
+                            onClick={() => !simulating && setPackingListUploaded(true)}
+                            className={`border-2 border-dashed rounded-xl p-4 text-center transition-all ${
+                                packingListUploaded 
+                                    ? 'border-emerald-500 bg-emerald-50/40 text-emerald-700' 
+                                    : 'border-slate-200 bg-slate-50/50 hover:bg-slate-100/50 text-slate-500 cursor-pointer'
+                            }`}
+                        >
+                            <span className="text-xl block mb-1">📦</span>
+                            <span className="text-xs font-bold block">Subir Packing List</span>
+                            {packingListUploaded && <span className="text-[10px] font-semibold mt-1 block text-emerald-600">✓ Cargado</span>}
                         </div>
                     </div>
                 </div>
+
+                <button 
+                    onClick={handleStartAnalysis}
+                    disabled={simulating || (!invoiceUploaded && !packingListUploaded)}
+                    className="w-full py-2.5 bg-[#00529F] hover:bg-blue-800 disabled:bg-slate-200 disabled:text-slate-400 text-white text-xs font-bold rounded-lg uppercase tracking-wider transition-all"
+                >
+                    {simulating ? '🔄 Analizando Documentos...' : '⚡ Analizar'}
+                </button>
             </div>
+
+            {/* ZONA DERECHA: RESULTADO IA INTERACTIVO */}
+            <div className="bg-white p-6 rounded-xl border border-[#E2E8F0] shadow-sm flex flex-col justify-between h-[340px]">
+                <div className="space-y-4">
+                    <div className="flex justify-between items-center border-b pb-2">
+                        <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider">Resultado IA</h3>
+                        {mockResultVisible && !simulating && (
+                            <span className="text-[9px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded border border-emerald-200 uppercase tracking-wider">
+                                Optimizado
+                            </span>
+                        )}
+                    </div>
+
+                    {simulating ? (
+                        <div className="flex flex-col items-center justify-center py-12 space-y-3">
+                            <span className="text-2xl animate-spin">🔄</span>
+                            <p className="text-xs font-medium text-slate-500">Modelos de lenguaje extrayendo texto bajo reglas OMA...</p>
+                        </div>
+                    ) : mockResultVisible ? (
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-xs">
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Producto:</p>
+                                <p className="font-bold text-slate-800 mt-0.5">Laptop Dell</p>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Confianza:</p>
+                                <p className="font-bold text-emerald-600 mt-0.5 text-sm">97%</p>
+                            </div>
+                            <div className="col-span-2">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Subpartida sugerida:</p>
+                                <p className="font-mono font-bold text-[#00529F] text-base mt-0.5 bg-blue-50/50 px-2 py-1 rounded border border-blue-100 inline-block">
+                                    8471.30.00
+                                </p>
+                            </div>
+                            <div className="col-span-2">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Normativa aplicada:</p>
+                                <div className="space-y-0.5 font-bold text-emerald-700 text-[11px]">
+                                    <p className="flex items-center">✔ Arancel Nacional</p>
+                                    <p className="flex items-center">✔ COMEX</p>
+                                    <p className="flex items-center">✔ OMA</p>
+                                </div>
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="flex flex-col items-center justify-center py-14 text-center">
+                            <span className="text-2xl opacity-40">📊</span>
+                            <p className="text-xs text-slate-400 font-medium mt-2 max-w-[240px]">
+                                Cargue documentos a la izquierda y presione Analizar para desplegar la inferencia aduanera.
+                            </p>
+                        </div>
+                    )}
+                </div>
+
+                {mockResultVisible && !simulating && (
+                    <button className="w-full py-2 border border-slate-200 text-slate-700 bg-slate-50 hover:bg-slate-100 text-xs font-bold rounded-lg uppercase tracking-wider transition-colors">
+                        💾 Descargar PDF
+                    </button>
+                )}
+            </div>
+
         </div>
     );
 }
