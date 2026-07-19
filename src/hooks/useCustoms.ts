@@ -7,8 +7,10 @@ export function useCustoms(currentBrokerId: number) {
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [isClassifying, setIsClassifying] = useState<boolean>(false);
+    
+    // NUEVO ESTADO: Almacena el último mapeo exitoso de la API
+    const [lastResult, setLastResult] = useState<CustomsOperation | null>(null);
 
-    // Cargar historial al montar el componente
     useEffect(() => {
         async function loadInitialData() {
             try {
@@ -16,7 +18,7 @@ export function useCustoms(currentBrokerId: number) {
                 const data = await customsService.getOperations();
                 setOperations(data);
             } catch (err: any) {
-                setError(err.message || 'Falla de conexión con los servidores');
+                setError(err.message || 'Falla de conexión');
             } finally {
                 setLoading(false);
             }
@@ -24,15 +26,14 @@ export function useCustoms(currentBrokerId: number) {
         loadInitialData();
     }, []);
 
-    // Acción interactiva para procesar un nuevo PDF
     const handleUpload = async (file: File) => {
         try {
             setIsClassifying(true);
             const newOp = await customsService.classifyDocument(file, currentBrokerId);
-            // Inyección inmutable al inicio de la tabla para reflejar la actualización inmediata
-            setOperations(prev => [newOp, ...prev]);
+            setLastResult(newOp); // Guardamos la traza para pintar en pantalla
+            setOperations(prev => [newOp, ...prev]); // Actualización reactiva de la tabla
         } catch (err: any) {
-            setError(err.message || 'Error al procesar archivo arancelario');
+            setError(err.message || 'Error al procesar el motor lógico');
         } finally {
             setIsClassifying(false);
         }
@@ -43,6 +44,7 @@ export function useCustoms(currentBrokerId: number) {
         loading,
         error,
         isClassifying,
+        lastResult, // Retornamos el estado hacia la UI
         handleUpload
     };
 }
